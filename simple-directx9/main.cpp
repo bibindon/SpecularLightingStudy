@@ -287,6 +287,8 @@ void Render()
     D3DXMatrixIdentity(&mat);
     mat = mat * View * Proj;
 
+    D3DXVECTOR4 cameraPos( vec1.x, vec1.y, vec1.z, 0.f);
+    hResult = g_pEffect->SetVector("g_cameraPos", &cameraPos);
     hResult = g_pEffect->SetMatrix("g_matWorldViewProj", &mat);
     assert(hResult == S_OK);
 

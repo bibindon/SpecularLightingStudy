@@ -289,7 +289,7 @@ void Render()
 
     D3DXVECTOR4 cameraPos( vec1.x, vec1.y, vec1.z, 0.f);
 
-    D3DXVECTOR3 lightPos(15.f * sinf(f), 10.f, -15.f * cosf(f));
+    D3DXVECTOR3 lightPos(30.f * sinf(f), 4.f, -30.f * cosf(f));
     D3DXVECTOR4 lightPos2(lightPos.x, lightPos.y, lightPos.z, 0.f);
 
     hResult = g_pEffect->SetVector("g_cameraPos", &cameraPos);

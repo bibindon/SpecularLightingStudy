@@ -28,10 +28,10 @@ void VertexShader1(in  float4 inPosition  : POSITION,
     float4 lightDir = g_lightPos - inPosition;
     float4 lightNorm = normalize(lightDir);
     
-    float4 halfVector = cameraNorm + lightNorm;
+    float3 halfVector = cameraNorm.xyz + lightNorm.xyz;
     halfVector = normalize(halfVector);
 
-    float specularPower = dot(halfVector, inNormal);
+    float specularPower = dot(halfVector, inNormal.xyz);
 
     float lightIntensity = dot(inNormal, lightNorm);
     outDiffuse.rgb = max(0, lightIntensity);
@@ -40,7 +40,7 @@ void VertexShader1(in  float4 inPosition  : POSITION,
     // C++‘¤‚©‚çÝ’è‚Å‚«‚é‚æ‚¤‚É‚µ‚½‚Ù‚¤‚ª‚Å‚«‚é‚±‚Æ‚ª‘‚¦‚é
     if (specularPower >= 0.f)
     {
-        outDiffuse.rgb += pow(specularPower, 32.f) * 100.f;
+        outDiffuse.rgb += pow(specularPower, 32.f) * 3.f;
     }
 
     outDiffuse.rgb += g_ambient;

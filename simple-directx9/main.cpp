@@ -280,7 +280,7 @@ void Render()
                                1.0f,
                                10000.0f);
 
-    D3DXVECTOR3 vec1(5.f, 3.f, 5.f);
+    D3DXVECTOR3 vec1(3.f, 2.f, 3.f);
     D3DXVECTOR3 vec2(0, 0, 0);
     D3DXVECTOR3 vec3(0, 1, 0);
     D3DXMatrixLookAtLH(&View, &vec1, &vec2, &vec3);
@@ -289,7 +289,7 @@ void Render()
 
     D3DXVECTOR4 cameraPos( vec1.x, vec1.y, vec1.z, 0.f);
 
-    D3DXVECTOR3 lightPos(30.f * sinf(f), 4.f, -30.f * cosf(f));
+    D3DXVECTOR3 lightPos(30.f * sinf(f), 10.f, -30.f * cosf(f));
     D3DXVECTOR4 lightPos2(lightPos.x, lightPos.y, lightPos.z, 0.f);
 
     hResult = g_pEffect->SetVector("g_cameraPos", &cameraPos);

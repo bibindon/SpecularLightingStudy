@@ -28,6 +28,7 @@ void VertexShader1(in  float4 inPosition  : POSITION,
     float4 lightDir = g_lightPos - inPosition;
     float4 lightNorm = normalize(lightDir);
     
+    // w¬•ª‚ª‚ ‚é‚ÆˆÓ}‚µ‚½³‹K‰»‚ªs‚í‚ê‚È‚¢
     float3 halfVector = cameraNorm.xyz + lightNorm.xyz;
     halfVector = normalize(halfVector);
 

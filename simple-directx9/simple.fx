@@ -1,6 +1,7 @@
 float4x4 g_matWorldViewProj;
-float4 g_lightNormal = { 0.259f, 0.864f, 0.432f, 0.0f };
-float4 g_cameraPos = { 10.f, 10.f, 10.f, 0.0f };
+float4 g_lightPos = { -10.f, 10.f, -10.f, 0.0f };
+float4 g_cameraPos = { 10.f, 5.f, 10.f, 0.0f };
+float3 g_ambient = { 0.2f, 0.2f, 0.2f };
 
 texture texture1;
 sampler textureSampler = sampler_state {
@@ -23,14 +24,26 @@ void VertexShader1(in  float4 inPosition  : POSITION,
     // スペキュラ光の強さを求める
     float4 cameraDir = g_cameraPos - inPosition;
     float4 cameraNorm = normalize(cameraDir);
-    float4 halfVector = cameraNorm + g_lightNormal;
+
+    float4 lightDir = g_lightPos - inPosition;
+    float4 lightNorm = normalize(lightDir);
+    
+    float4 halfVector = cameraNorm + lightNorm;
     halfVector = normalize(halfVector);
 
     float specularPower = dot(halfVector, inNormal);
 
-    float lightIntensity = dot(inNormal, g_lightNormal);
+    float lightIntensity = dot(inNormal, lightNorm);
     outDiffuse.rgb = max(0, lightIntensity);
-    outDiffuse.rgb += pow(specularPower, 32.f) * 100.f;
+
+    // スペキュラ光の鋭さと強さを設定する。
+    // C++側から設定できるようにしたほうができることが増える
+    if (specularPower >= 0.f)
+    {
+        outDiffuse.rgb += pow(specularPower, 32.f) * 100.f;
+    }
+
+    outDiffuse.rgb += g_ambient;
     outDiffuse.a = 1.0f;
 
     outTexCood = inTexCood;

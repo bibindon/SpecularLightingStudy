@@ -280,7 +280,7 @@ void Render()
                                1.0f,
                                10000.0f);
 
-    D3DXVECTOR3 vec1(5 * sinf(f), 3, -5 * cosf(f));
+    D3DXVECTOR3 vec1(5.f, 3.f, 5.f);
     D3DXVECTOR3 vec2(0, 0, 0);
     D3DXVECTOR3 vec3(0, 1, 0);
     D3DXMatrixLookAtLH(&View, &vec1, &vec2, &vec3);
@@ -288,7 +288,12 @@ void Render()
     mat = mat * View * Proj;
 
     D3DXVECTOR4 cameraPos( vec1.x, vec1.y, vec1.z, 0.f);
+
+    D3DXVECTOR3 lightPos(15.f * sinf(f), 10.f, -15.f * cosf(f));
+    D3DXVECTOR4 lightPos2(lightPos.x, lightPos.y, lightPos.z, 0.f);
+
     hResult = g_pEffect->SetVector("g_cameraPos", &cameraPos);
+    hResult = g_pEffect->SetVector("g_lightPos", &lightPos2);
     hResult = g_pEffect->SetMatrix("g_matWorldViewProj", &mat);
     assert(hResult == S_OK);
 

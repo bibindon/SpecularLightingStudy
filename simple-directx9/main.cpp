@@ -190,6 +190,23 @@ void InitD3D(HWND hWnd)
 
     assert(hResult == S_OK);
 
+    // なめらかなライティングのために法線情報を計算しなおす
+    {
+        DWORD fvf = g_pMesh->GetFVF();
+        if ((fvf & D3DFVF_NORMAL) == 0)
+        {
+            LPD3DXMESH meshWithN;
+            g_pMesh->CloneMeshFVF(g_pMesh->GetOptions(), fvf | D3DFVF_NORMAL, g_pd3dDevice, &meshWithN);
+            g_pMesh->Release();
+            g_pMesh = meshWithN;
+        }
+
+        std::vector<DWORD> adj(g_pMesh->GetNumFaces() * 3);
+        g_pMesh->GenerateAdjacency(1e-6f, adj.data());  // しきい値はモデルに合わせて
+
+        HRESULT hr = D3DXComputeNormals(g_pMesh, adj.data()); // OK なら頂点法線が更新される
+    }
+
     D3DXMATERIAL* d3dxMaterials = (D3DXMATERIAL*)pD3DXMtrlBuffer->GetBufferPointer();
     g_pMaterials.resize(g_dwNumMaterials);
     g_pTextures.resize(g_dwNumMaterials);

@@ -41,7 +41,7 @@ void VertexShader1(in  float4 inPosition  : POSITION,
     // C++‘¤‚©‚çÝ’è‚Å‚«‚é‚æ‚¤‚É‚µ‚½‚Ù‚¤‚ª‚Å‚«‚é‚±‚Æ‚ª‘‚¦‚é
     if (specularPower >= 0.f)
     {
-        outDiffuse.rgb += pow(specularPower, 32.f) * 3.f;
+        outDiffuse.rgb += pow(specularPower, 256.f) * 2.f;
     }
 
     outDiffuse.rgb += g_ambient;

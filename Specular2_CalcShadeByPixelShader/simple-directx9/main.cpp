@@ -191,7 +191,9 @@ void InitD3D(HWND hWnd)
     assert(hResult == S_OK);
 
     // なめらかなライティングのために法線情報を計算しなおす
-    if (false)
+    // 立方体の面にグラデーションが現れるようになる。
+    // 立方体の面にグラデーションが現れるのは良くないので使うべきではない
+    if (true)
     {
         DWORD fvf = g_pMesh->GetFVF();
         if ((fvf & D3DFVF_NORMAL) == 0)

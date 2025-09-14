@@ -72,6 +72,7 @@ technique Technique1
 {
     pass P0
     {
+        // SHADEMODE = FLAT;
         VertexShader = compile vs_3_0 VertexShader1();
         PixelShader = compile ps_3_0 PixelShader1();
     }

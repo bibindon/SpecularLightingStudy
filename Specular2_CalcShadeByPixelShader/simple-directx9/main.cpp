@@ -19,6 +19,7 @@ LPDIRECT3D9 g_pD3D = NULL;
 LPDIRECT3DDEVICE9 g_pd3dDevice = NULL;
 LPD3DXFONT g_pFont = NULL;
 LPD3DXMESH g_pMesh = NULL;
+LPD3DXMESH g_pMesh2 = NULL;
 std::vector<D3DMATERIAL9> g_pMaterials;
 std::vector<LPDIRECT3DTEXTURE9> g_pTextures;
 DWORD g_dwNumMaterials = 0;
@@ -190,22 +191,51 @@ void InitD3D(HWND hWnd)
 
     assert(hResult == S_OK);
 
+    hResult = D3DXLoadMeshFromX(_T("cube.x"),
+                                D3DXMESH_SYSTEMMEM,
+                                g_pd3dDevice,
+                                NULL,
+                                &pD3DXMtrlBuffer,
+                                NULL,
+                                &g_dwNumMaterials,
+                                &g_pMesh2);
+
+    assert(hResult == S_OK);
+
     // なめらかなライティングのために法線情報を計算しなおす
     if (true)
     {
-        DWORD fvf = g_pMesh->GetFVF();
-        if ((fvf & D3DFVF_NORMAL) == 0)
         {
-            LPD3DXMESH meshWithN;
-            g_pMesh->CloneMeshFVF(g_pMesh->GetOptions(), fvf | D3DFVF_NORMAL, g_pd3dDevice, &meshWithN);
-            g_pMesh->Release();
-            g_pMesh = meshWithN;
+            DWORD fvf = g_pMesh->GetFVF();
+            if ((fvf & D3DFVF_NORMAL) == 0)
+            {
+                LPD3DXMESH meshWithN;
+                g_pMesh->CloneMeshFVF(g_pMesh->GetOptions(), fvf | D3DFVF_NORMAL, g_pd3dDevice, &meshWithN);
+                g_pMesh->Release();
+                g_pMesh = meshWithN;
+            }
+
+            std::vector<DWORD> adj(g_pMesh->GetNumFaces() * 3);
+            g_pMesh->GenerateAdjacency(1e-6f, adj.data());  // しきい値はモデルに合わせて
+
+            HRESULT hr = D3DXComputeNormals(g_pMesh, adj.data()); // OK なら頂点法線が更新される
         }
 
-        std::vector<DWORD> adj(g_pMesh->GetNumFaces() * 3);
-        g_pMesh->GenerateAdjacency(1e-6f, adj.data());  // しきい値はモデルに合わせて
+        {
+            DWORD fvf = g_pMesh2->GetFVF();
+            if ((fvf & D3DFVF_NORMAL) == 0)
+            {
+                LPD3DXMESH meshWithN;
+                g_pMesh2->CloneMeshFVF(g_pMesh2->GetOptions(), fvf | D3DFVF_NORMAL, g_pd3dDevice, &meshWithN);
+                g_pMesh2->Release();
+                g_pMesh2 = meshWithN;
+            }
 
-        HRESULT hr = D3DXComputeNormals(g_pMesh, adj.data()); // OK なら頂点法線が更新される
+            std::vector<DWORD> adj(g_pMesh2->GetNumFaces() * 3);
+            g_pMesh2->GenerateAdjacency(1e-6f, adj.data());  // しきい値はモデルに合わせて
+
+            HRESULT hr = D3DXComputeNormals(g_pMesh2, adj.data()); // OK なら頂点法線が更新される
+        }
     }
 
     D3DXMATERIAL* d3dxMaterials = (D3DXMATERIAL*)pD3DXMtrlBuffer->GetBufferPointer();
@@ -276,6 +306,7 @@ void Cleanup()
     }
 
     SAFE_RELEASE(g_pMesh);
+    SAFE_RELEASE(g_pMesh2);
     SAFE_RELEASE(g_pEffect);
     SAFE_RELEASE(g_pFont);
     SAFE_RELEASE(g_pd3dDevice);
@@ -287,7 +318,7 @@ void Render()
     HRESULT hResult = E_FAIL;
 
     static float f = 0.0f;
-    f += 0.025f;
+    f += 0.05f;
 
     D3DXMATRIX mat;
     D3DXMATRIX View, Proj;
@@ -303,6 +334,7 @@ void Render()
     D3DXVECTOR3 vec3(0, 1, 0);
     D3DXMatrixLookAtLH(&View, &vec1, &vec2, &vec3);
     D3DXMatrixIdentity(&mat);
+    D3DXMatrixTranslation(&mat, 1.f, 0.f, -1.f);
     mat = mat * View * Proj;
 
     D3DXVECTOR4 cameraPos( vec1.x, vec1.y, vec1.z, 0.f);
@@ -350,6 +382,21 @@ void Render()
         assert(hResult == S_OK);
 
         hResult = g_pMesh->DrawSubset(i);
+        assert(hResult == S_OK);
+    }
+
+    {
+
+        D3DXMatrixIdentity(&mat);
+        D3DXMatrixTranslation(&mat, -1.f, 0.f, 1.f);
+        mat = mat * View * Proj;
+
+        hResult = g_pEffect->SetMatrix("g_matWorldViewProj", &mat);
+
+        hResult = g_pEffect->CommitChanges();
+        assert(hResult == S_OK);
+
+        hResult = g_pMesh2->DrawSubset(0);
         assert(hResult == S_OK);
     }
 
